@@ -7,14 +7,6 @@
 #     Distributed Under Apache v2.0 License
 #
 
-import {
-  for_each = {
-    for k, role in var.roles : k => role if try(role.import, false)
-  }
-  to = postgresql_role.role[each.key]
-  id = each.value.name
-}
-
 resource "postgresql_role" "role" {
   for_each         = var.roles
   name             = each.value.name
