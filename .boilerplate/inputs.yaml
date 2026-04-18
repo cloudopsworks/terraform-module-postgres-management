@@ -1,1 +1,80 @@
 # Module configuration
+
+# databases: {}  # (Optional) Map of PostgreSQL databases to create and manage. Default: {}
+# databases:
+#   <db_ref>:                           # (Required) Unique key identifying this database in the module.
+#     name: "dbname"                    # (Required) PostgreSQL database name.
+#     create_owner: false               # (Optional) Create a dedicated <name>_ow owner role. Default: false.
+#     owner: "ownername"                # (Conditionally Required) Owner role name when create_owner=false.
+#     collate: "en_US.UTF-8"            # (Optional) LC_COLLATE setting. Default: null (server default).
+#     ctype: "en_US.UTF-8"              # (Optional) LC_CTYPE setting. Default: null.
+#     connection_limit: -1              # (Optional) Maximum connections. Default: -1 (unlimited).
+#     is_template: false                # (Optional) Mark as template database. Default: null.
+#     template: "template0"             # (Optional) Source template for creation. Default: null.
+#     encoding: "UTF8"                  # (Optional) Database encoding. Default: null.
+#     allow_connections: true           # (Optional) Allow connections to database. Default: null.
+#     alter_object_ownership: false     # (Optional) Alter object ownership on creation. Default: null.
+#     import: false                     # (Optional) Import existing database instead of creating. Default: false.
+#     schemas:                          # (Optional) List of schemas to create inside this database.
+#       - name: "app"                   # (Required) Schema name.
+#         owner: "rolename"             # (Optional) Schema owner role. Default: database owner.
+#         reuse: true                   # (Optional) Skip error if schema already exists. Default: true.
+#         cascade_on_delete: false      # (Optional) DROP CASCADE on destroy. Default: false.
+databases: {}
+
+# users: {}  # (Optional) Map of PostgreSQL login roles to create and manage. Default: {}
+# users:
+#   <user_ref>:                         # (Required) Unique key identifying this user in the module.
+#     name: "username"                  # (Required) PostgreSQL role name.
+#     grant: "readwrite"                # (Required) Grant type: owner | readwrite | readonly.
+#     db_ref: "db_ref"                  # (Optional) Key from var.databases for database association.
+#     database_name: "dbname"           # (Optional) Explicit database name when db_ref is not set.
+#     database_owner: "ownername"       # (Conditionally Required) Owner role when grant=owner and no db_ref.
+#     schema: "public"                  # (Optional) Schema for privilege grants. Default: "public".
+#     login: true                       # (Optional) Allow login. Default: true.
+#     superuser: false                  # (Optional) Grant superuser privileges. Default: null.
+#     create_database: false            # (Optional) Grant CREATEDB. Default: null.
+#     replication: false                # (Optional) Grant replication. Default: null.
+#     encrypted_password: true          # (Optional) Encrypt stored password. Default: true.
+#     inherit: true                     # (Optional) Inherit privileges from parent roles. Default: null.
+#     create_role: false                # (Optional) Grant CREATEROLE. Default: null.
+#     connection_limit: -1              # (Optional) Maximum connections for this role. Default: -1.
+#     import: false                     # (Optional) Import existing role instead of creating. Default: false.
+users: {}
+
+# roles: {}  # (Optional) Map of PostgreSQL non-login group roles. Default: {}
+# roles:
+#   <role_ref>:                         # (Required) Unique key identifying this role in the module.
+#     name: "rolename"                  # (Required) PostgreSQL role name.
+#     grant: "owner"                    # (Optional) Grant context: owner | readwrite | readonly.
+#     db_ref: "db_ref"                  # (Optional) Associated database ref from var.databases.
+#     database_name: "dbname"           # (Optional) Explicit database name when db_ref is not set.
+#     schema: "public"                  # (Optional) Schema for privilege grants.
+#     create_database: false            # (Optional) Grant CREATEDB. Default: null.
+#     replication: false                # (Optional) Grant replication. Default: null.
+#     inherit: true                     # (Optional) Inherit privileges from parent roles. Default: null.
+#     create_role: false                # (Optional) Grant CREATEROLE. Default: null.
+#     connection_limit: -1              # (Optional) Maximum connections for this role. Default: -1.
+#     import: false                     # (Optional) Import existing role instead of creating. Default: false.
+roles: {}
+
+# password_rotation_period: 0  # (Optional) Password rotation period in days. 0 disables time-based rotation. Default: 0.
+password_rotation_period: 0
+
+# force_reset: false  # (Optional) Force password reset for all managed roles on next apply. Default: false.
+force_reset: false
+
+# rotation_lambda_name: ""  # (Optional) Name of Lambda function managing password rotation.
+# When set, random_password is used only for initial seeding; current passwords must be
+# supplied via rotated_owner_passwords and rotated_user_passwords. Default: "" (disabled).
+rotation_lambda_name: ""
+
+# rotated_owner_passwords: {}  # (Optional) Map of db_ref → current password from Lambda rotator.
+# Required when rotation_lambda_name is set and force_reset=false. Sensitive. Default: {}
+# Example: { myapp = "s3cr3t" }
+rotated_owner_passwords: {}
+
+# rotated_user_passwords: {}  # (Optional) Map of user_ref → current password from Lambda rotator.
+# Required when rotation_lambda_name is set and force_reset=false. Sensitive. Default: {}
+# Example: { myapp_rw = "s3cr3t" }
+rotated_user_passwords: {}

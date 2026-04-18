@@ -1,37 +1,169 @@
-name: Terraform Transit Gateway Module
+name: terraform-module-postgres-management
 #logo: logo/logo.jpg
 badges:
   - name: Latest Release
-    image: https://img.shields.io/github/release/<owner/repo>.svg?style=for-the-badge
-    url: https://github.com/<owner/repo>/releases/latest
+    image: https://img.shields.io/github/release/cloudopsworks/terraform-module-postgres-management.svg?style=for-the-badge
+    url: https://github.com/cloudopsworks/terraform-module-postgres-management/releases/latest
   - name: Last Updated
-    image: https://img.shields.io/github/last-commit/<owner/repo>.svg?style=for-the-badge
-    url: https://github.com/<owner/repo>/commits
+    image: https://img.shields.io/github/last-commit/cloudopsworks/terraform-module-postgres-management.svg?style=for-the-badge
+    url: https://github.com/cloudopsworks/terraform-module-postgres-management/commits
 
 license: "APACHE2"
 
 copyrights:
   - name: "Cloud Ops Works LLC"
     url: "https://cloudopsworks.co"
-    year: "2026"
+    year: "2021"
 
-github_repo: <owner/repo>
+github_repo: cloudopsworks/terraform-module-postgres-management
 
 description: |-
-  <description>
+  Cloud-agnostic Terraform base module for PostgreSQL database management. Manages databases,
+  schemas, login roles, group roles, and fine-grained grants (owner / readwrite / readonly).
+  No cloud provider is embedded — a configured `postgresql` provider is injected by the caller
+  via `providers = { postgresql = postgresql }`.
 
 # Introduction to the project
 introduction: |-
-#  This is an introduction.
+  This module provides a reusable, cloud-agnostic layer for managing PostgreSQL resources:
+
+  - **Databases** — create, import, configure collation/encoding/connection limits.
+  - **Schemas** — create schemas per database with ownership and cascade-delete control.
+  - **Owner roles** — optional auto-generated `<dbname>_ow` owner role per database.
+  - **Login roles (users)** — create with owner / readwrite / readonly grants.
+  - **Group roles** — non-login roles for RBAC.
+  - **Password lifecycle** — time-based rotation via `time_rotating`, forced reset via
+    `force_reset`, or external Lambda rotation via `rotation_lambda_name`.
+
+  The module is designed to be consumed by cloud-specific management modules (e.g.
+  `terraform-module-aws-postgres-management`) that supply the provider and persist
+  passwords into cloud-native secrets stores.
 
 # How to use this project
 usage: |-
+  ### Calling from a cloud module (Terraform)
+
+  ```hcl
+  module "db" {
+    source = "git::https://github.com/cloudopsworks/terraform-module-postgres-management.git?ref=v1.0.0"
+
+    providers = {
+      postgresql = postgresql
+    }
+
+    databases = {
+      myapp = {
+        name         = "myapp"
+        create_owner = true
+        encoding     = "UTF8"
+        collate      = "en_US.UTF-8"
+        ctype        = "en_US.UTF-8"
+        schemas = [
+          { name = "app", reuse = true, cascade_on_delete = false }
+        ]
+      }
+    }
+
+    users = {
+      myapp_rw = {
+        name   = "myapp_rw"
+        grant  = "readwrite"
+        db_ref = "myapp"
+        schema = "app"
+      }
+      myapp_ro = {
+        name   = "myapp_ro"
+        grant  = "readonly"
+        db_ref = "myapp"
+        schema = "app"
+      }
+    }
+
+    password_rotation_period = 30
+    force_reset              = false
+  }
+  ```
+
+  ### Calling from Terragrunt
+
+  ```hcl
+  terraform {
+    source = "git::https://github.com/cloudopsworks/terraform-module-postgres-management.git?ref=v1.0.0"
+  }
+
+  generate "providers" {
+    path      = "providers.tf"
+    if_exists = "overwrite_terragrunt"
+    contents  = <<-EOF
+      provider "postgresql" {
+        host     = dependency.rds.outputs.endpoint
+        username = dependency.rds.outputs.master_username
+        password = dependency.rds.outputs.master_password
+        sslmode  = "require"
+      }
+    EOF
+  }
+
+  inputs = {
+    databases = {
+      myapp = {
+        name         = "myapp"
+        create_owner = true
+      }
+    }
+    users = {
+      myapp_rw = {
+        name   = "myapp_rw"
+        grant  = "readwrite"
+        db_ref = "myapp"
+      }
+    }
+    password_rotation_period = 30
+  }
+  ```
 
 # Example usage
 examples: |-
+  #### Import existing database and owner role
+
+  ```hcl
+  databases = {
+    legacy = {
+      name         = "legacy_db"
+      import       = true
+      create_owner = true
+    }
+  }
+  ```
+
+  #### External Lambda password rotation
+
+  ```hcl
+  rotation_lambda_name    = "my-db-rotator"
+  rotated_owner_passwords = { myapp = data.aws_secretsmanager_secret_version.owner.secret_string }
+  rotated_user_passwords  = { myapp_rw = data.aws_secretsmanager_secret_version.rw.secret_string }
+  ```
+
+  #### Group roles
+
+  ```hcl
+  roles = {
+    readonly_group = {
+      name   = "readonly_group"
+      grant  = "readonly"
+      db_ref = "myapp"
+    }
+  }
+  ```
 
 # How to get started quickly
 quickstart: |-
+  1. Reference this module from a cloud-specific module or Terragrunt configuration.
+  2. Supply a configured `postgresql` provider via `providers = { postgresql = postgresql }`.
+  3. Define your `databases`, `users`, and optionally `roles` in the `inputs` block.
+  4. Run `terragrunt apply`.
+  5. Retrieve generated passwords from the `owner_passwords` and `user_passwords` outputs
+     and store them in your cloud-native secrets store.
 
 include:
   - "docs/targets.md"
