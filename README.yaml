@@ -45,7 +45,7 @@ usage: |-
 
   ```hcl
   module "db" {
-    source = "git::https://github.com/cloudopsworks/terraform-module-postgres-management.git?ref=v1.0.0"
+    source = "git::https://github.com/cloudopsworks/terraform-module-postgres-management.git?ref=v1.0.1"
 
     providers = {
       postgresql = postgresql
@@ -88,7 +88,7 @@ usage: |-
 
   ```hcl
   terraform {
-    source = "git::https://github.com/cloudopsworks/terraform-module-postgres-management.git?ref=v1.0.0"
+    source = "git::https://github.com/cloudopsworks/terraform-module-postgres-management.git?ref=v1.0.1"
   }
 
   generate "providers" {

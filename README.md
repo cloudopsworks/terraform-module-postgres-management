@@ -73,7 +73,7 @@ Instead pin to the release tag (e.g. `?ref=vX.Y.Z`) of one of our [latest releas
 
 ```hcl
 module "db" {
-  source = "git::https://github.com/cloudopsworks/terraform-module-postgres-management.git?ref=v1.0.0"
+  source = "git::https://github.com/cloudopsworks/terraform-module-postgres-management.git?ref=v1.0.1"
 
   providers = {
     postgresql = postgresql
@@ -116,7 +116,7 @@ module "db" {
 
 ```hcl
 terraform {
-  source = "git::https://github.com/cloudopsworks/terraform-module-postgres-management.git?ref=v1.0.0"
+  source = "git::https://github.com/cloudopsworks/terraform-module-postgres-management.git?ref=v1.0.1"
 }
 
 generate "providers" {
@@ -221,9 +221,9 @@ Available targets:
 
 | Name | Version |
 |------|---------|
-| <a name="provider_postgresql"></a> [postgresql](#provider\_postgresql) | ~> 1.25 |
-| <a name="provider_random"></a> [random](#provider\_random) | ~> 3.4 |
-| <a name="provider_time"></a> [time](#provider\_time) | ~> 0.13 |
+| <a name="provider_postgresql"></a> [postgresql](#provider\_postgresql) | 1.26.0 |
+| <a name="provider_random"></a> [random](#provider\_random) | 3.8.1 |
+| <a name="provider_time"></a> [time](#provider\_time) | 0.13.1 |
 
 ## Modules
 
