@@ -221,9 +221,9 @@ Available targets:
 
 | Name | Version |
 |------|---------|
-| <a name="provider_postgresql"></a> [postgresql](#provider\_postgresql) | 1.26.0 |
-| <a name="provider_random"></a> [random](#provider\_random) | 3.8.1 |
-| <a name="provider_time"></a> [time](#provider\_time) | 0.13.1 |
+| <a name="provider_postgresql"></a> [postgresql](#provider\_postgresql) | ~> 1.25 |
+| <a name="provider_random"></a> [random](#provider\_random) | ~> 3.4 |
+| <a name="provider_time"></a> [time](#provider\_time) | ~> 0.13 |
 
 ## Modules
 
