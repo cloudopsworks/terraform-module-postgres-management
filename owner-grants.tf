@@ -12,7 +12,7 @@ locals {
     for key, user in var.users : key => {
       name = user.name
       admin_role = try(user.db_ref, "") != "" ? (
-        try(var.databases[user.db_ref].create_owner, false) ? postgresql_role.owner[user.db_ref].name :
+        try(var.databases[user.db_ref].create_owner, false) ? local.owner_role_names[user.db_ref] :
         try(var.databases[user.db_ref].owner, "")
       ) : try(user.database_owner, "")
     }
@@ -24,7 +24,7 @@ resource "postgresql_grant" "user_all_db" {
     for key, user in var.users : key => user if try(user.grant, "") == "owner"
   }
   database    = try(each.value.db_ref, "") != "" ? postgresql_database.this[each.value.db_ref].name : each.value.database_name
-  role        = postgresql_role.user[each.key].name
+  role        = local.user_role_names[each.key]
   object_type = "database"
   privileges  = ["ALL"]
 }
@@ -34,7 +34,7 @@ resource "postgresql_grant" "user_all_schema" {
     for key, user in var.users : key => user if try(user.grant, "") == "owner"
   }
   database    = try(each.value.db_ref, "") != "" ? postgresql_database.this[each.value.db_ref].name : each.value.database_name
-  role        = postgresql_role.user[each.key].name
+  role        = local.user_role_names[each.key]
   object_type = "schema"
   schema      = try(each.value.schema, "public")
   privileges  = ["ALL"]

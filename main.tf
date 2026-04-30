@@ -11,13 +11,17 @@ locals {
   owner_list = {
     for key, db in var.databases : key => "${db.name}_ow" if try(db.create_owner, false)
   }
+  owner_role_names = merge(
+    { for key, role in postgresql_role.owner : key => role.name },
+    { for key, role in postgresql_role.owner_rotated : key => role.name }
+  )
 }
 
 resource "postgresql_database" "this" {
-  depends_on             = [postgresql_role.owner]
+  depends_on             = [postgresql_role.owner, postgresql_role.owner_rotated]
   for_each               = var.databases
   name                   = each.value.name
-  owner                  = try(each.value.create_owner, false) ? local.owner_list[each.key] : try(each.value.owner, null)
+  owner                  = try(each.value.create_owner, false) ? local.owner_role_names[each.key] : try(each.value.owner, null)
   lc_collate             = try(each.value.collate, null)
   lc_ctype               = try(each.value.ctype, null)
   connection_limit       = try(each.value.connection_limit, -1)
@@ -71,10 +75,21 @@ resource "random_password" "owner_initial" {
 
 resource "postgresql_role" "owner" {
   for_each = {
-    for key, db in var.databases : key => db if try(db.create_owner, false)
+    for key, db in var.databases : key => db if try(db.create_owner, false) && var.rotation_lambda_name == ""
+  }
+  name               = local.owner_list[each.key]
+  password           = random_password.owner[each.key].result
+  encrypted_password = true
+  create_role        = true
+  login              = true
+}
+
+resource "postgresql_role" "owner_rotated" {
+  for_each = {
+    for key, db in var.databases : key => db if try(db.create_owner, false) && var.rotation_lambda_name != ""
   }
   name = local.owner_list[each.key]
-  password = var.rotation_lambda_name == "" ? random_password.owner[each.key].result : (
+  password = (
     try(length(var.rotated_owner_passwords[each.key]), 0) > 0 && !var.force_reset ?
     var.rotated_owner_passwords[each.key] :
     random_password.owner_initial[each.key].result
@@ -82,10 +97,14 @@ resource "postgresql_role" "owner" {
   encrypted_password = true
   create_role        = true
   login              = true
+
+  lifecycle {
+    ignore_changes = [password]
+  }
 }
 
 resource "postgresql_grant_role" "provided_owner" {
-  depends_on = [postgresql_role.owner]
+  depends_on = [postgresql_role.owner, postgresql_role.owner_rotated]
   for_each = {
     for key, db in var.databases : key => db if !try(db.create_owner, false) && try(db.owner, "") != ""
   }
@@ -104,11 +123,12 @@ resource "postgresql_schema" "database_schema" {
   ]...)
   name          = each.value.schema.name
   database      = postgresql_database.this[each.value.db_ref].name
-  owner         = try(postgresql_role.owner[each.value.db_ref].name, try(each.value.schema.owner, null))
+  owner         = try(local.owner_role_names[each.value.db_ref], try(each.value.schema.owner, null))
   if_not_exists = try(each.value.schema.reuse, true)
   drop_cascade  = try(each.value.schema.cascade_on_delete, false)
   depends_on = [
     postgresql_database.this,
     postgresql_role.owner,
+    postgresql_role.owner_rotated,
   ]
 }
