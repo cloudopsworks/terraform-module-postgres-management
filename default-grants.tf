@@ -13,7 +13,7 @@ resource "postgresql_grant" "user_connect" {
   }
   depends_on  = [postgresql_database.this]
   database    = try(each.value.db_ref, "") != "" ? postgresql_database.this[each.value.db_ref].name : each.value.database_name
-  role        = postgresql_role.user[each.key].name
+  role        = local.user_role_names[each.key]
   object_type = "database"
   privileges  = ["CONNECT"]
 }

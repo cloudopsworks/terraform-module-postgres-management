@@ -12,7 +12,7 @@ resource "postgresql_grant" "user_usage_schema" {
     for key, user in var.users : key => user if try(user.grant, "") == "readwrite" || try(user.grant, "") == "readonly"
   }
   database    = try(each.value.db_ref, "") != "" ? postgresql_database.this[each.value.db_ref].name : each.value.database_name
-  role        = postgresql_role.user[each.key].name
+  role        = local.user_role_names[each.key]
   object_type = "schema"
   schema      = try(each.value.schema, "public")
   privileges  = ["USAGE"]
@@ -24,7 +24,7 @@ resource "postgresql_default_privileges" "user_tab_def_priv" {
     for key, user in var.users : key => user if try(user.grant, "") == "readwrite"
   }
   database    = try(each.value.db_ref, "") != "" ? postgresql_database.this[each.value.db_ref].name : each.value.database_name
-  role        = postgresql_role.user[each.key].name
+  role        = local.user_role_names[each.key]
   owner       = local.admin_role[each.key].admin_role
   object_type = "table"
   schema      = try(each.value.schema, "public")
@@ -37,7 +37,7 @@ resource "postgresql_grant" "user_tab_def_priv" {
     for key, user in var.users : key => user if try(user.grant, "") == "readwrite"
   }
   database    = try(each.value.db_ref, "") != "" ? postgresql_database.this[each.value.db_ref].name : each.value.database_name
-  role        = postgresql_role.user[each.key].name
+  role        = local.user_role_names[each.key]
   object_type = "table"
   schema      = try(each.value.schema, "public")
   privileges  = ["SELECT", "INSERT", "UPDATE", "DELETE", "TRUNCATE", "TRIGGER"]
@@ -49,7 +49,7 @@ resource "postgresql_default_privileges" "user_seq_def_priv" {
     for key, user in var.users : key => user if try(user.grant, "") == "readwrite"
   }
   database    = try(each.value.db_ref, "") != "" ? postgresql_database.this[each.value.db_ref].name : each.value.database_name
-  role        = postgresql_role.user[each.key].name
+  role        = local.user_role_names[each.key]
   owner       = local.admin_role[each.key].admin_role
   object_type = "sequence"
   schema      = try(each.value.schema, "public")
@@ -62,7 +62,7 @@ resource "postgresql_grant" "user_seq_def_priv" {
     for key, user in var.users : key => user if try(user.grant, "") == "readwrite"
   }
   database    = try(each.value.db_ref, "") != "" ? postgresql_database.this[each.value.db_ref].name : each.value.database_name
-  role        = postgresql_role.user[each.key].name
+  role        = local.user_role_names[each.key]
   object_type = "sequence"
   schema      = try(each.value.schema, "public")
   privileges  = ["SELECT", "UPDATE"]
@@ -74,7 +74,7 @@ resource "postgresql_default_privileges" "user_func_def_priv" {
     for key, user in var.users : key => user if try(user.grant, "") == "readwrite"
   }
   database    = try(each.value.db_ref, "") != "" ? postgresql_database.this[each.value.db_ref].name : each.value.database_name
-  role        = postgresql_role.user[each.key].name
+  role        = local.user_role_names[each.key]
   owner       = local.admin_role[each.key].admin_role
   object_type = "function"
   schema      = try(each.value.schema, "public")
@@ -87,7 +87,7 @@ resource "postgresql_grant" "user_func_def_priv" {
     for key, user in var.users : key => user if try(user.grant, "") == "readwrite"
   }
   database    = try(each.value.db_ref, "") != "" ? postgresql_database.this[each.value.db_ref].name : each.value.database_name
-  role        = postgresql_role.user[each.key].name
+  role        = local.user_role_names[each.key]
   object_type = "function"
   schema      = try(each.value.schema, "public")
   privileges  = ["EXECUTE"]
@@ -99,7 +99,7 @@ resource "postgresql_default_privileges" "user_types_def_priv" {
     for key, user in var.users : key => user if try(user.grant, "") == "readwrite"
   }
   database    = try(each.value.db_ref, "") != "" ? postgresql_database.this[each.value.db_ref].name : each.value.database_name
-  role        = postgresql_role.user[each.key].name
+  role        = local.user_role_names[each.key]
   owner       = local.admin_role[each.key].admin_role
   object_type = "type"
   schema      = try(each.value.schema, "public")
