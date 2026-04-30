@@ -41,8 +41,10 @@
 | [postgresql_grant.user_usage_schema](https://registry.terraform.io/providers/cyrilgdn/postgresql/latest/docs/resources/grant) | resource |
 | [postgresql_grant_role.provided_owner](https://registry.terraform.io/providers/cyrilgdn/postgresql/latest/docs/resources/grant_role) | resource |
 | [postgresql_role.owner](https://registry.terraform.io/providers/cyrilgdn/postgresql/latest/docs/resources/role) | resource |
+| [postgresql_role.owner_rotated](https://registry.terraform.io/providers/cyrilgdn/postgresql/latest/docs/resources/role) | resource |
 | [postgresql_role.role](https://registry.terraform.io/providers/cyrilgdn/postgresql/latest/docs/resources/role) | resource |
 | [postgresql_role.user](https://registry.terraform.io/providers/cyrilgdn/postgresql/latest/docs/resources/role) | resource |
+| [postgresql_role.user_rotated](https://registry.terraform.io/providers/cyrilgdn/postgresql/latest/docs/resources/role) | resource |
 | [postgresql_schema.database_schema](https://registry.terraform.io/providers/cyrilgdn/postgresql/latest/docs/resources/schema) | resource |
 | [random_password.owner](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/password) | resource |
 | [random_password.owner_initial](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/password) | resource |
