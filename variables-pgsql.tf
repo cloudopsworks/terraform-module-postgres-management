@@ -91,6 +91,13 @@ variable "force_reset" {
   default     = false
 }
 
+## specials_in_password: include special characters in generated owner and user passwords
+variable "specials_in_password" {
+  description = "(Optional) Include special characters (=_-+@~#) in generated owner and user passwords. Set false for alphanumeric-only passwords. Default: true."
+  type        = bool
+  default     = true
+}
+
 ## rotation_lambda_name: when non-empty, passwords are managed externally by a Lambda rotator.
 ## The cloud module must supply current passwords via rotated_owner_passwords / rotated_user_passwords.
 variable "rotation_lambda_name" {

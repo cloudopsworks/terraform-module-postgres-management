@@ -73,7 +73,7 @@ Instead pin to the release tag (e.g. `?ref=vX.Y.Z`) of one of our [latest releas
 
 ```hcl
 module "db" {
-  source = "git::https://github.com/cloudopsworks/terraform-module-postgres-management.git?ref=v1.0.1"
+  source = "git::https://github.com/cloudopsworks/terraform-module-postgres-management.git?ref=v1.1.0"
 
   providers = {
     postgresql = postgresql
@@ -109,6 +109,7 @@ module "db" {
 
   password_rotation_period = 30
   force_reset              = false
+  specials_in_password     = true
 }
 ```
 
@@ -116,7 +117,7 @@ module "db" {
 
 ```hcl
 terraform {
-  source = "git::https://github.com/cloudopsworks/terraform-module-postgres-management.git?ref=v1.0.1"
+  source = "git::https://github.com/cloudopsworks/terraform-module-postgres-management.git?ref=v1.1.0"
 }
 
 generate "providers" {
@@ -147,6 +148,7 @@ inputs = {
     }
   }
   password_rotation_period = 30
+  specials_in_password     = true
 }
 ```
 
@@ -180,6 +182,12 @@ databases = {
 rotation_lambda_name    = "my-db-rotator"
 rotated_owner_passwords = { myapp = data.aws_secretsmanager_secret_version.owner.secret_string }
 rotated_user_passwords  = { myapp_rw = data.aws_secretsmanager_secret_version.rw.secret_string }
+```
+
+#### Alphanumeric-only generated passwords
+
+```hcl
+specials_in_password = false
 ```
 
 #### Group roles
@@ -221,9 +229,9 @@ Available targets:
 
 | Name | Version |
 |------|---------|
-| <a name="provider_postgresql"></a> [postgresql](#provider\_postgresql) | ~> 1.25 |
-| <a name="provider_random"></a> [random](#provider\_random) | ~> 3.4 |
-| <a name="provider_time"></a> [time](#provider\_time) | ~> 0.13 |
+| <a name="provider_postgresql"></a> [postgresql](#provider\_postgresql) | 1.26.0 |
+| <a name="provider_random"></a> [random](#provider\_random) | 3.8.1 |
+| <a name="provider_time"></a> [time](#provider\_time) | 0.13.1 |
 
 ## Modules
 
@@ -277,6 +285,7 @@ Available targets:
 | <a name="input_rotated_owner_passwords"></a> [rotated\_owner\_passwords](#input\_rotated\_owner\_passwords) | (Optional) Map of db\_ref → current password from Lambda rotator. Required when rotation\_lambda\_name is set and force\_reset=false. | `map(string)` | `{}` | no |
 | <a name="input_rotated_user_passwords"></a> [rotated\_user\_passwords](#input\_rotated\_user\_passwords) | (Optional) Map of user\_ref → current password from Lambda rotator. Required when rotation\_lambda\_name is set and force\_reset=false. | `map(string)` | `{}` | no |
 | <a name="input_rotation_lambda_name"></a> [rotation\_lambda\_name](#input\_rotation\_lambda\_name) | (Optional) Name of the Lambda function managing password rotation. When set, random\_password is used only for initial seeding. Default: empty (use random\_password with time\_rotating). | `string` | `""` | no |
+| <a name="input_specials_in_password"></a> [specials\_in\_password](#input\_specials\_in\_password) | (Optional) Include special characters (=\_-+@~#) in generated owner and user passwords. Set false for alphanumeric-only passwords. Default: true. | `bool` | `true` | no |
 | <a name="input_spoke_def"></a> [spoke\_def](#input\_spoke\_def) | Spoke ID Number, must be a 3 digit number | `string` | `"001"` | no |
 | <a name="input_users"></a> [users](#input\_users) | Map of PostgreSQL login roles. See inline docs for full schema. | `any` | `{}` | no |
 
