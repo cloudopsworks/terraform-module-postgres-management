@@ -45,7 +45,7 @@ usage: |-
 
   ```hcl
   module "db" {
-    source = "git::https://github.com/cloudopsworks/terraform-module-postgres-management.git?ref=v1.0.1"
+    source = "git::https://github.com/cloudopsworks/terraform-module-postgres-management.git?ref=v1.1.0"
 
     providers = {
       postgresql = postgresql
@@ -81,6 +81,7 @@ usage: |-
 
     password_rotation_period = 30
     force_reset              = false
+    specials_in_password     = true
   }
   ```
 
@@ -88,7 +89,7 @@ usage: |-
 
   ```hcl
   terraform {
-    source = "git::https://github.com/cloudopsworks/terraform-module-postgres-management.git?ref=v1.0.1"
+    source = "git::https://github.com/cloudopsworks/terraform-module-postgres-management.git?ref=v1.1.0"
   }
 
   generate "providers" {
@@ -119,6 +120,7 @@ usage: |-
       }
     }
     password_rotation_period = 30
+    specials_in_password     = true
   }
   ```
 
@@ -142,6 +144,12 @@ examples: |-
   rotation_lambda_name    = "my-db-rotator"
   rotated_owner_passwords = { myapp = data.aws_secretsmanager_secret_version.owner.secret_string }
   rotated_user_passwords  = { myapp_rw = data.aws_secretsmanager_secret_version.rw.secret_string }
+  ```
+
+  #### Alphanumeric-only generated passwords
+
+  ```hcl
+  specials_in_password = false
   ```
 
   #### Group roles

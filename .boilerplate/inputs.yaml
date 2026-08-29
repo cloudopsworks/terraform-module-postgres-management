@@ -64,6 +64,10 @@ password_rotation_period: 0
 # force_reset: false  # (Optional) Force password reset for all managed roles on next apply. Default: false.
 force_reset: false
 
+# specials_in_password: true  # (Optional) Include special characters (=_-+@~#) in generated owner and user passwords.
+# Set false for alphanumeric-only passwords. Changing this value rotates generated credentials. Default: true.
+specials_in_password: true
+
 # rotation_lambda_name: ""  # (Optional) Name of Lambda function managing password rotation.
 # When set, random_password is used only for initial seeding; current passwords must be
 # supplied via rotated_owner_passwords and rotated_user_passwords. Default: "" (disabled).
